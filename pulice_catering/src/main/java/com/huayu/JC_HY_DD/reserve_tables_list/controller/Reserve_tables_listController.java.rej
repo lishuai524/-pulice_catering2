@@ -1,0 +1,9 @@
+diff a/pulice_catering/src/main/java/com/huayu/JC_HY_DD/reserve_tables_list/controller/Reserve_tables_listController.java b/pulice_catering/src/main/java/com/huayu/JC_HY_DD/reserve_tables_list/controller/Reserve_tables_listController.java	(rejected hunks)
+@@ -42,7 +42,6 @@
+     }
+     @RequestMapping("/add.do")
+     public String add(Reserve_tables_list reserve){
+-//        long date = new Date().getTime() - 1300000000000L;
+         String str = "redirect:/reserve_tables_list/reserve-tables-list/toadd.do";
+         if(reserve.getQsid() == null || reserve.getQsid().equals("")){
+             reserve.setQsid(101);

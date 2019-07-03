@@ -1,0 +1,552 @@
+    <!DOCTYPE html>
+<html style="overflow-x:auto;overflow-y:auto;">
+<head>
+    <title>易牙餐饮后台管理系统</title><!--  - Powered By JeeSite -->
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" /><meta name="author" content="http://www.anssy.com/"/>
+    <meta name="renderer" content="webkit"><meta http-equiv="X-UA-Compatible" content="IE=8,IE=9,IE=10" />
+    <meta http-equiv="Expires" content="0"><meta http-equiv="Cache-Control" content="no-cache"><meta http-equiv="Cache-Control" content="no-store">
+    <script src="/yiya/static/jquery/jquery-1.8.3.min.js" type="text/javascript"></script>
+    <link href="/yiya/static/bootstrap/2.3.1/css_cerulean/bootstrap.min.css" type="text/css" rel="stylesheet" />
+    <script src="/yiya/static/bootstrap/2.3.1/js/bootstrap.min.js" type="text/javascript"></script>
+    <link href="/yiya/static/bootstrap/2.3.1/awesome/font-awesome.min.css" type="text/css" rel="stylesheet" />
+    <!--[if lte IE 7]><link href="/yiya/static/bootstrap/2.3.1/awesome/font-awesome-ie7.min.css" type="text/css" rel="stylesheet" /><![endif]-->
+    <!--[if lte IE 6]><link href="/yiya/static/bootstrap/bsie/css/bootstrap-ie6.min.css" type="text/css" rel="stylesheet" />
+<script src="/yiya/static/bootstrap/bsie/js/bootstrap-ie.min.js" type="text/javascript"></script><![endif]-->
+    <link href="/yiya/static/jquery-select2/3.4/select2.min.css" rel="stylesheet" />
+    <script src="/yiya/static/jquery-select2/3.4/select2.min.js" type="text/javascript"></script>
+    <link href="/yiya/static/jquery-validation/1.11.0/jquery.validate.min.css" type="text/css" rel="stylesheet" />
+    <script src="/yiya/static/jquery-validation/1.11.0/jquery.validate.min.js" type="text/javascript"></script>
+    <link href="/yiya/static/jquery-jbox/2.3/Skins/Bootstrap/jbox.min.css" rel="stylesheet" />
+    <script src="/yiya/static/jquery-jbox/2.3/jquery.jBox-2.3.min.js" type="text/javascript"></script>
+    <script src="/yiya/static/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
+    <script src="/yiya/static/common/mustache.min.js" type="text/javascript"></script>
+    <link href="/yiya/static/common/jeesite.css" type="text/css" rel="stylesheet" />
+    <script src="/yiya/static/common/jeesite.js" type="text/javascript"></script>
+    <script type="text/javascript">var ctx = '/yiya/a', ctxStatic='/yiya/static';</script>
+    <!-- Baidu tongji analytics --><script>var _hmt=_hmt||[];(function(){var hm=document.createElement("script");hm.src="//hm.baidu.com/hm.js?82116c626a8d504a5c0675073362ef6f";var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(hm,s);})();</script>
+
+
+    <meta name="decorator" content="blank"/>
+
+    <style type="text/css">
+        #main {padding:0;margin:0;} #main .container-fluid{padding:0 4px 0 6px;}
+        #header {margin:0 0 8px;position:static;} #header li {font-size:14px;_font-size:12px;}
+        #header .brand {font-family:Helvetica, Georgia, Arial, sans-serif, 黑体;font-size:26px;padding-left:33px;}
+        #footer {margin:8px 0 0 0;padding:3px 0 0 0;font-size:11px;text-align:center;border-top:2px solid #0663A2;}
+        #footer, #footer a {color:#999;} #left{overflow-x:hidden;overflow-y:auto;} #left .collapse{position:static;}
+        #userControl>li>a{/*color:#fff;*/text-shadow:none;} #userControl>li>a:hover, #user #userControl>li.open>a{background:transparent;}
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            //
+            // 绑定菜单单击事件
+            $("#menu a.menu").click(function(){
+                // 一级菜单焦点
+                $("#menu li.menu").removeClass("active");
+                $(this).parent().addClass("active");
+                // 左侧区域隐藏
+                if ($(this).attr("target") == "mainFrame"){
+                    $("#left,#openClose").hide();
+                    wSizeWidth();
+                    //
+                    return true;
+                }
+                // 左侧区域显示
+                $("#left,#openClose").show();
+                if(!$("#openClose").hasClass("close")){
+                    $("#openClose").click();
+                }
+                // 显示二级菜单
+                var menuId = "#menu-" + $(this).attr("data-id");
+                if ($(menuId).length > 0){
+                    $("#left .accordion").hide();
+                    $(menuId).show();
+                    // 初始化点击第一个二级菜单
+                    if (!$(menuId + " .accordion-body:first").hasClass('in')){
+                        $(menuId + " .accordion-heading:first a").click();
+                    }
+                    if (!$(menuId + " .accordion-body li:first ul:first").is(":visible")){
+                        $(menuId + " .accordion-body a:first i").click();
+                    }
+                    // 初始化点击第一个三级菜单
+                    $(menuId + " .accordion-body li:first li:first a:first i").click();
+                }else{
+                    // 获取二级菜单数据
+                    $.get($(this).attr("data-href"), function(data){
+                        if (data.indexOf("id=\"loginForm\"") != -1){
+                            alert('未登录或登录超时。请重新登录，谢谢！');
+                            top.location = "/yiya/a";
+                            return false;
+                        }
+                        $("#left .accordion").hide();
+                        $("#left").append(data);
+                        // 链接去掉虚框
+                        $(menuId + " a").bind("focus",function() {
+                            if(this.blur) {this.blur()};
+                        });
+                        // 二级标题
+                        $(menuId + " .accordion-heading a").click(function(){
+                            $(menuId + " .accordion-toggle i").removeClass('icon-chevron-down').addClass('icon-chevron-right');
+                            if(!$($(this).attr('data-href')).hasClass('in')){
+                                $(this).children("i").removeClass('icon-chevron-right').addClass('icon-chevron-down');
+                            }
+                        });
+                        // 二级内容
+                        $(menuId + " .accordion-body a").click(function(){
+                            $(menuId + " li").removeClass("active");
+                            $(menuId + " li i").removeClass("icon-white");
+                            $(this).parent().addClass("active");
+                            $(this).children("i").addClass("icon-white");
+                        });
+                        // 展现三级
+                        $(menuId + " .accordion-inner a").click(function(){
+                            var href = $(this).attr("data-href");
+                            if($(href).length > 0){
+                                $(href).toggle().parent().toggle();
+                                return false;
+                            }
+                            //
+                        });
+                        // 默认选中第一个菜单
+                        $(menuId + " .accordion-body a:first i").click();
+                        $(menuId + " .accordion-body li:first li:first a:first i").click();
+                    });
+                }
+                // 大小宽度调整
+                wSizeWidth();
+                return false;
+            });
+            // 初始化点击第一个一级菜单
+            $("#menu a.menu:first span").click();
+            //
+            // 鼠标移动到边界自动弹出左侧菜单
+            $("#openClose").mouseover(function(){
+                if($(this).hasClass("open")){
+                    $(this).click();
+                }
+            });
+            // 获取通知数目
+            function getNotifyNum(){
+                $.get("/yiya/a/oa/oaNotify/self/count?updateSession=0&t="+new Date().getTime(),function(data){
+                    var num = parseFloat(data);
+                    if (num > 0){
+                        $("#notifyNum,#notifyNum2").show().html("("+num+")");
+                    }else{
+                        $("#notifyNum,#notifyNum2").hide()
+                    }
+                });
+            }
+            getNotifyNum(); //
+            setInterval(getNotifyNum, 60000); //
+        });
+        //
+    </script>
+
+</head>
+<body>
+
+<div id="main">
+    <div id="header" class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="brand"><span id="productName">易牙餐饮后台管理系统</span></div>
+            <ul id="userControl" class="nav pull-right">
+                <li><a href="#" target="_blank" title="访问网站主页"><i class="icon-home"></i></a></li>
+                <li id="themeSwitch" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="主题切换"><i class="icon-th-large"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" onclick="location='/yiya/theme/default?url='+location.href">默认主题</a></li><li><a href="#" onclick="location='/yiya/theme/cerulean?url='+location.href">天蓝主题</a></li><li><a href="#" onclick="location='/yiya/theme/readable?url='+location.href">橙色主题</a></li><li><a href="#" onclick="location='/yiya/theme/united?url='+location.href">红色主题</a></li><li><a href="#" onclick="location='/yiya/theme/flat?url='+location.href">Flat主题</a></li>
+                        <li><a href="javascript:cookie('tabmode','1');location=location.href">开启页签模式</a></li>
+                    </ul>
+                    <!--[if lte IE 6]><script type="text/javascript">$('#themeSwitch').hide();</script><![endif]-->
+                </li>
+                <li id="userInfo" class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="个人信息">您好, 易牙平台管理员&nbsp;<span id="notifyNum" class="label label-info hide"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/yiya/a/sys/user/info" target="mainFrame"><i class="icon-user"></i>&nbsp; 个人信息</a></li>
+                        <li><a href="/yiya/a/sys/user/modifyPwd" target="mainFrame"><i class="icon-lock"></i>&nbsp;  修改密码</a></li>
+                        <li><a href="/yiya/a/oa/oaNotify/self" target="mainFrame"><i class="icon-bell"></i>&nbsp;  我的通知 <span id="notifyNum2" class="label label-info hide"></span></a></li>
+                    </ul>
+                </li>
+                <li><a href="/yiya/a/logout" title="退出登录">退出</a></li>
+                <li>&nbsp;</li>
+            </ul>
+
+            <div class="nav-collapse">
+                <ul id="menu" class="nav" style="*white-space:nowrap;float:none;">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    <li class="menu  active">
+
+                        <a class="menu" href="javascript:" data-href="/yiya/a/sys/menu/tree?parentId=27" data-id="27"><span>基础信息</span></a>
+
+
+                    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    <li class="menu ">
+
+                        <a class="menu" href="javascript:" data-href="/yiya/a/sys/menu/tree?parentId=d9ed1debc2b448a2ba7e80c3d1a854e6" data-id="d9ed1debc2b448a2ba7e80c3d1a854e6"><span>会员管理</span></a>
+
+
+                    </li>
+
+
+
+
+
+                    <li class="menu ">
+
+                        <a class="menu" href="javascript:" data-href="/yiya/a/sys/menu/tree?parentId=288ef51e538c4d1a8b41ab159a1e5ec1" data-id="288ef51e538c4d1a8b41ab159a1e5ec1"><span>订单管理</span></a>
+
+
+                    </li>
+
+
+
+
+
+                    <li class="menu ">
+
+                        <a class="menu" href="javascript:" data-href="/yiya/a/sys/menu/tree?parentId=713f1f6c9f7a4d9488726eeb2a9e8810" data-id="713f1f6c9f7a4d9488726eeb2a9e8810"><span>菜品管理</span></a>
+
+
+                    </li>
+
+
+
+
+
+                    <li class="menu ">
+
+                        <a class="menu" href="javascript:" data-href="/yiya/a/sys/menu/tree?parentId=1de764e870044704a0fab7b7f3225007" data-id="1de764e870044704a0fab7b7f3225007"><span>财务管理</span></a>
+
+
+                    </li>
+
+
+
+
+
+                    <li class="menu ">
+
+                        <a class="menu" href="javascript:" data-href="/yiya/a/sys/menu/tree?parentId=1d604cb2763b4e69a984ce63160c4880" data-id="1d604cb2763b4e69a984ce63160c4880"><span>采购管理</span></a>
+
+
+                    </li>
+
+
+
+
+
+                    <li class="menu ">
+
+                        <a class="menu" href="javascript:" data-href="/yiya/a/sys/menu/tree?parentId=791452bebefd4bcc874e0e63c4454e0b" data-id="791452bebefd4bcc874e0e63c4454e0b"><span>库存管理</span></a>
+
+
+                    </li>
+
+
+
+
+
+                    <li class="menu ">
+
+                        <a class="menu" href="javascript:" data-href="/yiya/a/sys/menu/tree?parentId=afc70f01d8a94b15907b406375bd0f2d" data-id="afc70f01d8a94b15907b406375bd0f2d"><span>数据管理</span></a>
+
+
+                    </li>
+
+
+
+
+
+                    <li class="menu ">
+
+                        <a class="menu" href="javascript:" data-href="/yiya/a/sys/menu/tree?parentId=fb00ac2d9c464c4aa2554c0bc1279c91" data-id="fb00ac2d9c464c4aa2554c0bc1279c91"><span>系统管理</span></a>
+
+
+                    </li>
+
+
+
+
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div id="content" class="row-fluid">
+            <div id="left">
+            </div>
+            <div id="openClose" class="close">&nbsp;</div>
+            <div id="right">
+                <iframe id="mainFrame" name="mainFrame" src="" style="overflow:visible;" scrolling="yes" frameborder="no" width="100%" height="650"></iframe>
+            </div>
+        </div>
+        <div id="footer" class="row-fluid">
+            Copyright &copy; 2012-2016 易牙餐饮后台管理系统 - Powered By <a href="http://www.anssy.com/" target="_blank">Anssy</a> V1.2.7
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var leftWidth = 160; // 左侧窗口大小
+    var tabTitleHeight = 33; // 页签的高度
+    var htmlObj = $("html"), mainObj = $("#main");
+    var headerObj = $("#header"), footerObj = $("#footer");
+    var frameObj = $("#left, #openClose, #right, #right iframe");
+    function wSize(){
+        var minHeight = 500, minWidth = 980;
+        var strs = getWindowSize().toString().split(",");
+        htmlObj.css({"overflow-x":strs[1] < minWidth ? "auto" : "hidden", "overflow-y":strs[0] < minHeight ? "auto" : "hidden"});
+        mainObj.css("width",strs[1] < minWidth ? minWidth - 10 : "auto");
+        frameObj.height((strs[0] < minHeight ? minHeight : strs[0]) - headerObj.height() - footerObj.height() - (strs[1] < minWidth ? 42 : 28));
+        $("#openClose").height($("#openClose").height() - 5);//
+        wSizeWidth();
+    }
+    function wSizeWidth(){
+        if (!$("#openClose").is(":hidden")){
+            var leftWidth = ($("#left").width() < 0 ? 0 : $("#left").width());
+            $("#right").width($("#content").width()- leftWidth - $("#openClose").width() -5);
+        }else{
+            $("#right").width("100%");
+        }
+    }//
+</script>
+<script src="/yiya/static/common/wsize.min.js" type="text/javascript"></script>
+
+</body>
+</html>

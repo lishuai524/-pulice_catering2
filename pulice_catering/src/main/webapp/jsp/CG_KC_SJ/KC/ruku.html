@@ -1,0 +1,135 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <script src="/layui/layui.js" charset="utf-8"></script>
+    <script src="/layui/jquery-3.3.1.min.js" ></script>
+
+</head>
+<body>
+
+<form class="layui-form" lay-filter="filter" method="post">
+    <div>
+
+
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">送货单号</label>
+            <div class="layui-input-block">
+                <input name="odd" class="layui-input" lay-filter="name" type="text"  autocomplete="off" lay-verify="title">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">原材料名称</label>
+            <div class="layui-input-block">
+                <input name="rmiid" class="layui-input" lay-filter="name" type="text"  autocomplete="off" lay-verify="title">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">日期时间选择器</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" id="test5" type="text" placeholder="yyyy-MM-dd HH:mm:ss">
+            </div>
+        </div>
+
+
+
+        <div class="layui-input-block">
+            <!--lay-submit绑定触发提交的元素，如button-->
+            <button class="layui-btn layui-btn-normal" lay-submit lay-filter="fromdemo">提交</button>
+            <button class="layui-btn layui-btn-primary" type="reset">重置</button>
+        </div>
+    </div>
+
+</form>
+<!--================================================================================================================================================-->
+<table class="layui-hide" id="test" lay-filter="test"></table>
+
+
+
+
+<script id="barDemo" type="text/html">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+
+
+
+<script>
+    layui.use(['table','form','laydate'], function(){
+        var table = layui.table;
+        var form = layui.form;
+        var laydate = layui.laydate;
+         //日期时间选择器
+        laydate.render({
+            elem: '#test5'
+            ,type: 'datetime'
+        });
+
+
+
+        //提交表单
+        form.on('submit(fromdemo)',function (data) {
+            table.reload("test",{
+                where:{
+                    rmiid:data.field.rmiid,
+                    odd:data.field.odd
+                }
+            });
+            return false;
+        });
+
+
+        //表格
+        table.render({
+            elem: '#test'
+            ,url:'/stock_management/stock-management/hekaihui1.do'
+            ,title: '采购方式'
+            ,cols:
+                [
+                    [
+                        {field:'odd', title:'运送单号', width:'10%'}
+                        ,{field:'data', title:'入库日期', width:'10%'}
+                        ,{field:'rmiid', title:'原材料', width:'10%'}
+                        ,{field:'kid', title:'所属种类', width:'6%',templet:'<div>{{d.kin.name}}</div> '}
+                        ,{field:'uni_uid', title:'计量单位', width:'10%',templet:'<div>{{d.uni.name}}</div> '}
+                        ,{field:'model', title:'规格型号', width:'10%'}
+                        ,{field:'unit_price', title:'采购单价', width:'6%'}
+                        ,{field:'uid', title:'入库数量', width:'10%'}
+                        ,{field:'total_prices', title:'入库总价', width:'8%'}
+                        ,{field:'remark', title:'备注', width:'8%'}
+                        ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:'10%'}
+                    ]
+                ]
+            ,page:true
+            ,limit:3
+            ,limits:[2,3,4,5,6]
+        });
+
+
+        //监听行工具事件
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'del'){
+                //删除
+                layer.confirm('真的删除行么', function(index){
+                    $.get("/stock_management/stock-management/delete.do?id="+data.id,function(data){
+                        if(data){
+                            table.reload("test")
+                        }
+                    });
+                    layer.close(index);
+                });
+            }
+        });
+    });
+
+</script>
+</body>
+</html>

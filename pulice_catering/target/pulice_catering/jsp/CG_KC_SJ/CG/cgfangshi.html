@@ -1,0 +1,134 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <script src="/layui/layui.js" charset="utf-8"></script>
+    <script src="/layui/jquery-3.3.1.min.js" ></script>
+
+</head>
+<body>
+
+<form class="layui-form" lay-filter="filter" method="post">
+
+
+
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">采购方式</label>
+        <div class="layui-input-inline">
+            <input style="width: auto;" type="text"  name="Acquisition_Methods"placeholder="采购方式" autocomplete="off" class="layui-input">
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">门店名称</label>
+            <div class="layui-input-block">
+                <select name="sid">
+                    <option value="">——请选择——</option>
+                    <option th:each="l:${ist}" th:text="${l.shop_name}" th:value="${l.sid}"></option>
+                </select>
+            </div>
+            </div>
+
+
+        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="fromdemo">提交</button>
+            <button class="layui-btn layui-btn-primary" type="reset">重置</button>
+    </div>
+
+
+
+
+</form>
+<!--================================================================================================================================================-->
+<table class="layui-hide" id="test" lay-filter="test"></table>
+
+
+
+
+<script id="barDemo" type="text/html">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+
+<!-- 注意：如果你直接复制所有代码到本地，上述js路径需要改成你本地的 -->
+
+
+
+<script>
+    layui.use(['table','form'], function(){
+        var table = layui.table;
+        var form = layui.form;
+
+
+        //提交表单
+        form.on('submit(fromdemo)',function (data) {
+            table.reload("test",{
+                where:{
+                    acquisition_Methods:data.field.Acquisition_Methods,
+                    sid:data.field.sid
+                }
+            });
+            return false;
+        });
+
+
+        //表格
+        table.render({
+            elem: '#test'
+            ,url:'/acquisition_methods/acquisition-methods/hekaihui1.do'
+            ,title: '采购方式'
+            ,cols:
+                [
+                    [
+                        ,{field:'sid', title:'门店名称', width:'10%', totalRowText: '合计',templet:'<div>{{d.stores_information.shop_name}}</div> '}
+                        ,{field:'picture', title:'展示图片', width:'10%',templet:'<button><div><img src="{{d.picture}}"></div></button>'}
+                        ,{field:'piid', title:'门店经理', width:'10%'}
+                        ,{field:'business_hours', title:'经营时间', width:'10%'}
+                        ,{field:'phone', title:'联系电话', width:'10%'}
+                        ,{field:'email', title:'电子邮箱', width:'10%'}
+                        ,{field:'site', title:'门店地址', width:'10%'}
+                        ,{field:'qr_code', title:'二维码', width:'10%',templet:'<button><div><img src="{{d.qr_code}}"></div></button>'}
+                        ,{field:'acquisition_Methods', title:'采购方式', width:'10%'}
+                        ,{fixed: 'right', title:'操作', toolbar: '#barDemo', width:'10%'}
+                    ]
+                ]
+            ,page:true
+            ,limit:3
+            ,limits:[2,3,4,5,6]
+        });
+
+
+        //监听行工具事件
+        table.on('tool(test)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'del'){
+                //删除
+                layer.confirm('真的删除行么', function(index){
+                    $.get("/acquisition_methods/acquisition-methods/delete.do?id="+data.id,function(data){
+                        if(data){
+                            table.reload("test")
+                        }
+                    });
+                    layer.close(index);
+                });
+            } else if(obj.event === 'edit'){
+                //修改
+                layer.open({
+                    type: 2
+                    ,area:['500px','400px']
+                    ,content: '/acquisition_methods/acquisition-methods/toupdate.do?id='+data.id
+                    ,end: function () {
+                        location.reload("test");
+                    }
+                });
+            }
+        });
+    });
+
+</script>
+</body>
+</html>

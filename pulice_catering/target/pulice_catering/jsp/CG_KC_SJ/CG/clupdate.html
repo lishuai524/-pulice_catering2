@@ -1,0 +1,209 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <script src="/layui/layui.js" charset="utf-8"></script>
+    <script src="/layui/js/jquery.min.js" ></script>
+    <script src="/layui/jquery-3.3.1.min.js" ></script>
+
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+
+<body>
+
+<form class="layui-form" lay-filter="filter">
+    <input type="text" name="rmiid" th:value="${list1.rmiid}" HIDDEN><br>
+    <div class="layui-form-item">
+        <label class="layui-form-label">材料名称</label>
+        <div class="layui-input-block">
+            <input name="name" class="layui-input" lay-filter="name" type="text" th:value="${list1.name}"   autocomplete="off" lay-verify="title">
+        </div>
+    </div>
+
+    <!--<div class="layui-form-item">
+        <label class="layui-form-label">图片</label>
+        <div class="layui-input-block">
+            <input name="picture" class="layui-input" lay-filter="name" type="text" th:value="${list1.picture}" autocomplete="off" lay-verify="title">
+        </div>
+    </div>-->
+        <label class="control-label">菜单图片：</label>
+        <input type="hidden" name="picture"  id="imageUrl" th:value="${list1.picture}"/>
+
+    <div class="layui-upload" id="ImgPreview" th:value="${list1.picture}"  >
+            <div class="layui-upload-list" id="ddv1">
+                无
+                <p id="demoText"></p>
+            </div>
+            <button type="button" class="layui-btn" id="test1">上传图片</button>
+            <button type="button" id="deletePicture">清除</button>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+
+        <label class="layui-form-label">种类</label>
+        <div class="layui-input-block">
+            <select name="kid">
+                <option th:each="l:${list2}" th:text="${l.name}"  th:selected="${list1.kid eq l.kid}"  th:value="${l.kid}"></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">规格型号</label>
+        <div class="layui-input-block">
+            <input name="model" class="layui-input" lay-filter="name" type="text" th:value="${list1.model}" autocomplete="off" lay-verify="title">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">单价</label>
+        <div class="layui-input-block">
+            <input name="unit_price" class="layui-input" lay-filter="name"  th:value="${list1.unit_price}"  type="text" autocomplete="off" lay-verify="title">
+        </div>
+    </div>
+
+    <!-- 示例-970 -->
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">单位</label>
+        <div class="layui-input-block">
+            <select name="uid">
+                <option th:each="l:${list3}" th:text="${l.name}"  th:selected="${list1.uid eq l.uid}"  th:value="${l.uid}"></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">备注</label>
+        <div class="layui-input-block">
+            <input name="remark" class="layui-input" lay-filter="name" th:value="${list1.remark}"  type="text" autocomplete="off" lay-verify="title">
+        </div>
+    </div>
+
+    <script>
+        layui.use(['form'], function(){
+            var form = layui.form
+                ,layer = layui.layer
+
+       /* layui.use(["jquery", "upload", "form", "layer", "element"], function () {
+            var $ = layui.$,
+                element = layui.element,
+                layer = layui.layer,
+                upload = layui.upload,
+                form = layui.form;
+
+            //清除预览图片
+            $(document).on('click','#deletePicture',function(){
+                $('#demo1').attr('src', "");
+                var file = $("#hidden1").val();
+                var url = "/raw_material_information/raw-material-information/deletePicture.do";
+                $.ajax({
+                    url:url,
+                    type:'post',
+                    data:{file:file},
+                    success:function(data){
+                        if(data == 'false'){
+                            //layer.msg(data.msg,{icon: 5});//失败的表情
+                            return;
+                        }else{
+                            $("#hidden1").val("");
+                            $("#ddv1").html("无");
+                        }
+                    },
+                    complete: function () {
+                        layer.close(this.layerIndex);
+                    }
+                });
+
+            });
+
+
+            //普通图片上传
+            var uploadInst = upload.render({
+                elem: '#test1'
+                ,url: '/raw_material_information/raw-material-information/fileuploadExecl.do'
+                ,before: function(obj){
+                    //预读本地文件示例，不支持ie8
+                    obj.preview(function(index, file, result){
+                        $('#ddv1').html('<img class="layui-upload-img" src='+result+' height="80px" width="100px" id="demo1">');
+                    });
+                }
+                ,done: function(res){
+                    //如果上传失败
+                    if(res.code > 0){
+                        return layer.msg('上传失败');
+                    } else {
+                        $("#imageUrl").val(res.url);
+                    }
+                }
+                ,error: function(){
+                    //演示失败状态，并实现重传
+                    var demoText = $('#demoText');
+                    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                    demoText.find('.demo-reload').on('click', function(){
+                        uploadInst.upload();
+                    });
+                }
+            });
+
+        });*/
+
+
+
+
+
+
+
+
+            //提交
+            form.on('submit(*)', function(data){
+                $.ajax({
+                    url: '/raw_material_information/raw-material-information/update.do',
+                    type: 'post',
+                    dataType: 'json',
+                    contentType: "application/json;charset=UTF-8",
+                    data:JSON.stringify(data.field),
+                    success: function (data) {
+                        if (data) {
+                            layer.msg("修改成功")
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            parent.layer.close(index); //再执行关闭
+                        } else {
+                            layer.msg("修改失败")
+                        }
+                    }
+
+                });
+                return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+            });
+            //自定义验证规则
+            form.verify({
+                title: function(value){
+                    if(value.length <3){
+                        return '标题至少得3个字符啊';
+                    }
+                }
+                ,content: function(value){
+                    layedit.sync(editIndex);
+                }
+            });
+
+        });
+    </script>
+    <div class="layui-form-item" >
+        <div class="layui-input-block">
+            <!--lay-submit绑定触发提交的元素，如button-->
+            <button class="layui-btn layui-btn-primary" lay-submit lay-filter="*">提交</button>
+            <button class="layui-btn layui-btn-primary" type="reset">重置</button>
+        </div>
+    </div>
+
+</form>
+
+
+</body>
+</html>

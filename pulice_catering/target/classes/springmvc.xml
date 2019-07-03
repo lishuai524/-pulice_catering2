@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd">
+
+    <!--相当于配置注解映射器和配置器-->
+    <mvc:annotation-driven></mvc:annotation-driven>
+
+    <!--&lt;!&ndash; 模板解析器  &ndash;&gt;-->
+    <!--<bean id="templateResolver" class="org.thymeleaf.spring4.templateresolver.SpringResourceTemplateResolver">-->
+        <!--<property name="prefix" value="/jsp/" />-->
+        <!--<property name="templateMode" value="HTML5"/>-->
+        <!--<property name="cacheable" value="false" />-->
+        <!--<property name="characterEncoding" value="UTF-8"/>-->
+    <!--</bean>-->
+    <!--&lt;!&ndash; 模板引擎  &ndash;&gt;-->
+    <!--<bean id="templateEngine" class="org.thymeleaf.spring4.SpringTemplateEngine">-->
+        <!--<property name="templateResolver" ref="templateResolver" />-->
+    <!--</bean>-->
+
+    <!-- 视图解析器  -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/jsp/"></property>
+    </bean>
+    <!--<bean class="org.thymeleaf.spring4.view.ThymeleafViewResolver">-->
+    <!--&lt;!&ndash;<property name="templateEngine" ref="templateEngine" />&ndash;&gt;-->
+    <!--<property name="characterEncoding"  value="UTF-8" />-->
+<!--</bean>-->
+
+    <!--扫描带注解的controller包里的类-->
+    <context:component-scan base-package="com.huayu.*.*"></context:component-scan>
+
+    <!--配置上传文件配置-->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--  set the max upload size100MB  设置文件最大值   -->
+        <property name="maxUploadSize">
+            <value>104857600</value>
+        </property>
+        <property name="maxInMemorySize">
+            <value>4096</value>
+        </property>
+    </bean>
+
+</beans>
